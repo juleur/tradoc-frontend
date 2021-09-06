@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="googlebot" content="noindex,nofollow" />
+  <meta name="bingbot" content="noindex,nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" as="font" href="./fonts/Cera-Pro/Cera-Pro-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <title>Website</title>
+  <meta name="description" content="Opinionated Vite Starter Template">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    (function() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      const setting = localStorage.getItem('color-schema') || 'auto'
+      if (setting === 'dark' || (prefersDark && setting !== 'light'))
+        document.documentElement.classList.toggle('dark', true)
+    })()
+  </script>
+  <script type="module" src="/src/main.ts"></script>
+  <noscript>
+    <strong>Desencusa mas WEBSITE fonciona pas correctament sensa l'activacion de JavaScript.
+        Pregària de l'activar per contunhar</strong>
+  </noscript>
+</body>
+</html>
