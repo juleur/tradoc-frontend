@@ -3,7 +3,7 @@ import { useToast } from 'vue-toastification'
 import { useAuth } from '~/composables'
 import { logout } from '~/services'
 
-const title = 'WEBSITE'
+const title: string = 'Occitanofòn'
 
 const toast = useToast()
 
@@ -13,7 +13,6 @@ async function disconnect(): Promise<void> {
   const result = await logout()
   result.mapErr(err => toast.error(err.msg))
   AuthSignedOut()
-  localStorage.clear()
 }
 </script>
 
@@ -139,7 +138,11 @@ li > .desconnexion-page {
 a:link {
   text-decoration: none;
 }
-
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .oc-flag {
+    margin-left: -1px;
+  }
+}
 @media only screen and (max-width: 1000px) {
   header {
     gap: 20px 0;

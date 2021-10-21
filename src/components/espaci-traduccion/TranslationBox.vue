@@ -33,6 +33,7 @@ function emitEnglish(e: Event) {
   props.translations.english.content = (e.target as HTMLTextAreaElement).value
   emit('update:translations', props.translations)
 }
+
 </script>
 
 <template>

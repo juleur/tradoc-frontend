@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { useToast } from 'vue-toastification'
 import { capitalize } from '~/logic'
-import { TranslationsInputs } from '~/models'
+import { Translation, TranslationsInputs } from '~/models'
 import { useDatasets } from '~/composables'
+import { addNewTranslation } from '~/services'
+
+const toast = useToast()
+const router = useRouter()
 
 const props = defineProps<{ dialect: string }>()
 
@@ -13,9 +18,68 @@ const translationInputs = ref<TranslationsInputs>(new TranslationsInputs())
 const showEnglish = ref<boolean>(false)
 const showFemale = ref<boolean>(false)
 
-const skipSentence = (e: null) => skipDataset()
+function skipSentence(e: null): void {
+  translationInputs.value = new TranslationsInputs()
+  skipDataset()
+}
 const toggleEnglish = (value: boolean) => showEnglish.value = value
 const toggleFemale = (value: boolean) => showFemale.value = value
+
+const disabled = computed(() => {
+  const origOcFrRule = translationInputs.value.original.occitan.content.length > 0 && translationInputs.value.original.french.content.length > 0
+  const origEnRule = showEnglish.value && translationInputs.value.original.english.content.length > 0
+  const femOcFrRule = showFemale.value && translationInputs.value.feminine.occitan.content.length > 0 && translationInputs.value.feminine.french.content.length > 0
+  if ((origOcFrRule && !showEnglish.value && !showFemale.value)
+  || (origOcFrRule && origEnRule && !showFemale.value)
+  || (femOcFrRule && !showEnglish.value)
+  || (femOcFrRule && showEnglish.value && translationInputs.value.feminine.english.content.length > 0)
+  )
+    return false
+  return true
+})
+
+async function newTranslation(): Promise<void> {
+  const translations: Translation[] = []
+
+  const translation: Translation = {
+    oc: translationInputs.value.original.occitan.content.trim(),
+    fr: translationInputs.value.original.french.content.trim(),
+    datasetID: currentDataset.value.id,
+    Occitan: props.dialect.replace('-', '_'),
+  }
+  if (showEnglish.value && translationInputs.value.original.english.content.length > 0)
+    translation.en = translationInputs.value.original.english.content.trim()
+
+  translations.push(translation)
+
+  if (showFemale.value
+  && translationInputs.value.feminine.occitan.content.length > 0
+  && translationInputs.value.feminine.french.content.length > 0) {
+    translation.oc = translationInputs.value.feminine.occitan.content.trim()
+    translation.fr = translationInputs.value.feminine.french.content.trim()
+    if (showEnglish.value && translationInputs.value.feminine.english.content.length > 0)
+      translation.oc = translationInputs.value.feminine.french.content.trim()
+    else
+      delete translation.en
+
+    translations.push(translation)
+  }
+
+  const result = await addNewTranslation(translations)
+  result.map((_) => {
+    translationInputs.value = new TranslationsInputs()
+    skipDataset()
+  }).mapErr((err) => {
+    console.log(err)
+    if (err.status === 403) {
+      toast.warning(err.msg)
+      router.push('/menut-principau')
+    }
+    else {
+      toast.error(err.msg)
+    }
+  })
+}
 </script>
 
 <template>
@@ -56,8 +120,8 @@ const toggleFemale = (value: boolean) => showFemale.value = value
     <div class="btn-submit">
       <button
         class="submit-btn-trans"
-        :disabled="true"
-        @click="console.log('test')"
+        :disabled="disabled"
+        @click="newTranslation"
       >
         Confirmar las traduccions
       </button>

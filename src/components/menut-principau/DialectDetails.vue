@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { PropType } from '@vue/runtime-core'
-import { Dialect } from '~/models'
+import { Occitan } from '~/models'
 import { capitalize } from '~/logic'
 import { isYourDialects } from '~/helpers'
 
-defineProps({ dialect: { type: Object as PropType<Dialect>, required: true } })
+defineProps({ dialect: { type: Object as PropType<Occitan>, required: true } })
 
 </script>
 
@@ -16,16 +16,16 @@ defineProps({ dialect: { type: Object as PropType<Dialect>, required: true } })
     <div class="subdialects-box">
       <div
         v-for="(sub, idx) in dialect.subdialects"
-        :key="sub.subdialect"
+        :key="sub.name"
         class="subdialect-box"
       >
         <router-link
-          :to="`/espaci-traduccion/${dialect.dialect}-${sub.subdialect}`"
+          :to="`/espaci-traduccion/${dialect.dialect}-${sub.name}`"
         >
-          <h4>{{ capitalize(sub.subdialect) }}</h4>
-          <p>Total de las frasas tradusidas <span>{{ sub.total_translations }}</span></p>
-          <p v-if="isYourDialects(dialect.dialect, sub.subdialect)" class="by-you">
-            Dont <span>{{ sub.total_translation_by_translator }}</span> per tieu
+          <h4>{{ capitalize(sub.name) }}</h4>
+          <p>Total de las frasas tradusidas <span>{{ sub.totalTranslated }}</span></p>
+          <p v-if="isYourDialects(dialect.dialect, sub.name)" class="by-you">
+            Dont <span>{{ sub.totalTranslatedByTranslator }}</span> per tieu
           </p>
         </router-link>
         <hr v-if="idx < dialect.subdialects.length - 1" />

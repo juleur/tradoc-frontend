@@ -1,15 +1,22 @@
 <script setup lang="ts">
-// import { useToast } from 'vue-toastification'
-import { Dialect } from '~/models'
-import { getDialectsSubdialects } from '~/services/private_requests'
+import { useToast } from 'vue-toastification'
+import { Occitan } from '~/models'
+import { getOccitan, getOnlineTranslators } from '~/services/private-requests'
 
-// const toast = useToast()
+const toast = useToast()
 
-const dialects = ref<Dialect[]>([])
+const dialects = ref<Occitan[]>([])
+const onlineTranslators = ref<number>(0);
 
 onMounted(async() => {
-  const result = await getDialectsSubdialects()
-  result.map(data => dialects.value = data).mapErr(err => console.log(err))
+  const promises = await Promise.all([
+    getOccitan(),
+    getOnlineTranslators()
+  ])
+  const occitanResult = promises[0]
+  occitanResult.map(data => dialects.value = data).mapErr(err => toast.error(err.msg))
+  const onlineTranslatorsResult = promises[1]
+  onlineTranslatorsResult.map(data => onlineTranslators.value = data).mapErr(err => toast.error(err.msg))
 })
 </script>
 
@@ -23,7 +30,7 @@ onMounted(async() => {
         :dialect="dialect"
       ></DialectDetails>
     </div>
-    <OnlineTranslators :online="10"></OnlineTranslators>
+    <OnlineTranslators :online="onlineTranslators"></OnlineTranslators>
     <p class="other-dialect">
       Contacta l'admin se desiras apondre un sosdialècte
     </p>

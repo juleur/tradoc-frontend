@@ -66,4 +66,25 @@ class TranslationsInputs {
   }
 }
 
-export { TranslationsInputs }
+interface Translation {
+  oc: string
+  fr: string
+  en?: string
+  datasetID: string
+  Occitan: string
+}
+
+interface Subdialect {
+  name: string
+  files: {
+    fr: string
+    en: string
+  }
+}
+
+interface TranslationFile {
+  dialect: string
+  subdialects: Subdialect[]
+}
+
+export { TranslationsInputs, Translation, Subdialect, TranslationFile }

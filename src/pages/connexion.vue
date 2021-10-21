@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification'
 import { useAuth, useLoginForm } from '~/composables'
-import { login } from '~/services/public_requests'
+import { login } from '~/services/public-requests'
 
 const router = useRouter()
 const toast = useToast()
@@ -11,12 +11,11 @@ const { translator, disableForm } = useLoginForm()
 
 async function submitForm(): Promise<void> {
   const result = await login(translator.username.value, translator.password.value)
-  /* eslint-disable array-callback-return */
   result.map((accessToken) => {
     useLocalStorage('accessToken', accessToken)
     AuthSignedIn()
     toast.success('Es connectat')
-    setTimeout(() => router.push('/menut-principau'), 800)
+    router.push('/menut-principau')
   }).mapErr((err) => {
     toast.error(err.msg)
     translator.password.value = ''
@@ -49,6 +48,9 @@ async function submitForm(): Promise<void> {
           :condition="translator.password.error.length > 0"
           :message="translator.password.error"
         ></FieldFormError>
+        <router-link class="forget-pwd" :to="'/senhal-obludat'">
+          Senhal obludat ?
+        </router-link>
         <button :disabled="disableForm">
           Se connectar
         </button>
@@ -135,6 +137,15 @@ hr {
 a {
   text-decoration: none;
   color: inherit;
+}
+.forget-pwd {
+  text-decoration: underline;
+  align-self: flex-end;
+  font-size: 0.85rem;
+  color: #404040;
+}
+.forget-pwd:hover {
+  color: #507d82;
 }
 @media only screen and (max-width: 1210px) {
   .login {

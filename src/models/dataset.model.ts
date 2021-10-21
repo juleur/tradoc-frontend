@@ -1,4 +1,4 @@
 export interface Dataset {
-  _id: string
+  id: string
   sentence: string
 }

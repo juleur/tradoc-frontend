@@ -1,28 +1,42 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification'
 import { useRegisterForm } from '~/composables'
-import { register } from '~/services/public_requests'
+import { useSecretQuestions } from '~/composables/useSecretQuestions'
+import { register } from '~/services/public-requests'
+import tippy from 'tippy.js';
+import { SecretQuestionAndResponse } from '~/models';
+
 
 const router = useRouter()
 const toast = useToast()
 const { account, disableForm, resetForm } = useRegisterForm()
 
-const show = ref<boolean>(false)
+const { firstSecretQuestionSelected, secondSecretQuestionSelected, sq1, sq2 } = useSecretQuestions()
 
 async function submitForm(): Promise<void> {
+  const secretQuestionsAndResponses: SecretQuestionAndResponse[] = [
+    {
+      question: firstSecretQuestionSelected.value,
+      response: account.q1.value,
+    },
+    {
+      question: secondSecretQuestionSelected.value,
+      response: account.q2.value,
+    },
+  ]
+
   const result = await register(
     account.username.value,
     account.email.value,
     account.password.value,
+    secretQuestionsAndResponses,
   )
+
   result
-    /* eslint-disable array-callback-return */
-    .map((_) => {
+    .map((msgResp) => {
       resetForm()
-      toast.success('Tu as bien été inscrit, un administrateur doit le vérifier afin que tu puisses te connecter')
-      setTimeout(() => {
-        router.push('/connexion')
-      }, 2500)
+      toast.success(msgResp)
+      setTimeout(() => router.push('/connexion'), 1500)
     })
     .mapErr((err) => {
       toast.error(err.msg)
@@ -30,29 +44,32 @@ async function submitForm(): Promise<void> {
     })
 }
 
-const toggleShow = () => show.value = !show.value
+onMounted(() => {
+  tippy('#pseudo-tooltip', {
+    content: "Caractèrs autorizat: à è ò á é í ó ú ï ü ç À È Ò Á É Í Ó Ú Ï Ü Ç a b c d e f g h i j l m n o p q r s t u v x z A B C D E F G H I J L M N O P Q R S T U V X Z (e sonque un espaci per pseudonim)",
+    placement: 'right',
+    animation: 'fade',
+  });
+  tippy('#sq-tooltip', {
+    content: "Les réponses seront gardés",
+    placement: 'right',
+    animation: 'fade',
+  });
+})
 </script>
 
 <template>
   <div class="register">
     <h4>Enregistrament del tieu compte</h4>
     <form class="account-valid" autocomplete="off" @submit.prevent="submitForm">
-      <div v-if="show">
-        <p class="title-character">
-          Caractèrs autorizat
-        </p>
-        <p class="list-character">
-          à è ò á é í ó ú ï ü ç À È Ò Á É Í Ó Ú Ï Ü Ç a b c d e f g h i j l m n o p q r s t u v x z A B C D E F G H I J L M N O P Q R S T U V X Z (e sonque un espaci per pseudonim)
-        </p>
-      </div>
-      <div class="pseudonim-field">
+      <div class="tooltip-field">
         <input
           v-model="account.username.value"
           type="text"
           placeholder="Pseudonim"
           required
         />
-        <div @click="toggleShow()">
+        <div id="pseudo-tooltip">
           <ant-design:info-circle-filled color="#507d82" width="18" height="18" />
         </div>
       </div>
@@ -69,6 +86,46 @@ const toggleShow = () => show.value = !show.value
       <FieldFormError
         :condition="account.email.error.length > 0"
         :message="account.email.error"
+      ></FieldFormError>
+      <div class="tooltip-field">
+        <select v-model="firstSecretQuestionSelected" class="select-list">
+          <option v-for="sq in sq1" :key="sq" :value="sq">
+            {{ sq }}
+          </option>
+        </select>
+        <div id="sq-tooltip">
+          <ant-design:info-circle-filled color="#507d82" width="18" height="18" />
+        </div>
+      </div>
+      <input
+        v-model="account.q1.value"
+        type="text"
+        placeholder="Respònsa a la question"
+        required
+      />
+      <FieldFormError
+        :condition="account.q1.error.length > 0"
+        :message="account.q1.error"
+      ></FieldFormError>
+      <div class="tooltip-field">
+        <select v-model="secondSecretQuestionSelected" class="select-list">
+          <option v-for="sq in sq2" :key="sq" :value="sq">
+            {{ sq }}
+          </option>
+        </select>
+        <div id="sq-tooltip">
+          <ant-design:info-circle-filled color="#507d82" width="18" height="18" />
+        </div>
+      </div>
+      <input
+        v-model="account.q2.value"
+        type="text"
+        placeholder="Respònsa a la question"
+        required
+      />
+      <FieldFormError
+        :condition="account.q2.error.length > 0"
+        :message="account.q2.error"
       ></FieldFormError>
       <input
         v-model="account.password.value"
@@ -108,28 +165,26 @@ h4 {
   flex-direction: column;
   align-items: center;
 }
-.title-character {
-  font-size: 0.85rem;
-}
-.list-character {
-  font-size: 0.75rem;
-}
-.pseudonim-field {
+.tooltip-field {
   display: flex;
   gap: 0 10px;
 }
-.pseudonim-field > div {
+.tooltip-field > div {
   align-self: center;
   justify-self: center;
+}
+.tooltip-field > input,
+.tooltip-field > select {
+  width: 100%;
 }
 .account-valid {
   display: flex;
   flex-direction: column;
-  max-width: 300px;
+  width: 600px;
   gap: 1.5rem 0;
 }
-input {
-  min-width: 300px;
+input,
+.select-list {
   height: 1.9rem;
   border: 1.5px solid #e6e6e6;
   border-radius: 5px 5px 5px 5px;
@@ -154,7 +209,6 @@ button {
 button:disabled {
   opacity: 0.5;
 }
-
 @media only screen and (max-width: 1210px) {
   /* .login {
     justify-content: center;

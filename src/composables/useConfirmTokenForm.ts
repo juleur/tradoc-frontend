@@ -1,30 +1,19 @@
 import { reactive, computed, watch } from 'vue'
-import { validateEmail } from '~/logic'
 
-const EmailErr = 'Lemail est dnas un mauvais format'
 const pwdLengthErr = 'Cal que lo senhal contenga mai de 8 caractèrs.'
 const responseQuestionLenghErr = 'Cal que responsa contenga mai de 3 caractèrs.'
 const passwordsMatched = 'Lo senhal deu èsser identic al senhal de confirmacion.'
-const usernameMaxLengthErr = 'Cal que lo Pseudonim contenga mens de 25 caractèrs.'
 
-function useRegisterForm() {
+function useConfirmTokenForm() {
   let delayTimerPwd: NodeJS.Timeout
   let delayTimerConfirPwd: NodeJS.Timeout
 
   const account = reactive({
-    username: {
+    r1: {
       value: '',
       error: '',
     },
-    email: {
-      value: '',
-      error: '',
-    },
-    q1: {
-      value: '',
-      error: '',
-    },
-    q2: {
+    r2: {
       value: '',
       error: '',
     },
@@ -39,28 +28,16 @@ function useRegisterForm() {
   })
 
   watch(account, (newAccount, _) => {
-    // handle username field error
-    if (newAccount.username.value.length > 25)
-      account.username.error = usernameMaxLengthErr
-    else
-      account.username.error = ''
-
-    // handle email field error
-    if (newAccount.email.value.length !== 0 && !validateEmail(newAccount.email.value))
-      account.email.error = EmailErr
-    else
-      account.email.error = ''
-
     // handle response field error
-    if (newAccount.q1.value.length !== 0 && newAccount.q1.value.length < 3)
-      account.q1.error = responseQuestionLenghErr
+    if (newAccount.r1.value.length !== 0 && newAccount.r1.value.length < 3)
+      account.r1.error = responseQuestionLenghErr
     else
-      account.q1.error = ''
+      account.r1.error = ''
 
-    if (newAccount.q2.value.length !== 0 && newAccount.q2.value.length < 3)
-      account.q2.error = responseQuestionLenghErr
+    if (newAccount.r2.value.length !== 0 && newAccount.r2.value.length < 3)
+      account.r2.error = responseQuestionLenghErr
     else
-      account.q2.error = ''
+      account.r2.error = ''
 
     // handle confirm password field
     if (
@@ -94,13 +71,10 @@ function useRegisterForm() {
 
   const disableForm = computed<boolean>(() => {
     if (
-      account.username.value.length < 1
-      || account.username.value.length > 25
-      || !validateEmail(account.email.value)
-      || account.q1.value.length < 3
-      || account.q2.value.length < 3
-      || account.password.value.length < 8
-      || account.password.value !== account.confirPassword.value
+      account.r1.value.length < 3 ||
+      account.r2.value.length < 3 ||
+      account.password.value.length < 9 ||
+      account.password.value !== account.confirPassword.value
     )
       return true
 
@@ -108,10 +82,8 @@ function useRegisterForm() {
   })
 
   function resetForm(): void {
-    account.username.value = ''
-    account.email.value = ''
-    account.q1.value = ''
-    account.q2.value = ''
+    account.r1.value = ''
+    account.r2.value = ''
     account.password.value = ''
     account.confirPassword.value = ''
   }
@@ -123,4 +95,4 @@ function useRegisterForm() {
   }
 }
 
-export { useRegisterForm }
+export { useConfirmTokenForm }

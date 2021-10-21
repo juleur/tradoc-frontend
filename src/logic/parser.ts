@@ -11,6 +11,7 @@ function normalize(word: string): string {
   return word.normalize('NFD').replace(/\p{Diacritic}/gu, '')
 }
 
+
 export {
   validateEmail,
   capitalize,

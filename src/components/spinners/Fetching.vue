@@ -1,21 +1,10 @@
 <script setup lang="ts">
-// Autentificacion or Cargament
 const props = defineProps({
   active: {
     type: Boolean,
     required: true,
   },
-  message: {
-    type: String,
-    required: true,
-  },
-  opacity: {
-    type: Number,
-    required: true,
-  },
 })
-
-const opacity = props.opacity
 </script>
 
 <template>
@@ -32,7 +21,7 @@ const opacity = props.opacity
       <div></div>
     </div>
     <p class="loading-txt">
-      {{ props.message }}
+      Cargement
     </p>
   </div>
 </template>
@@ -45,7 +34,7 @@ const opacity = props.opacity
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, v-bind(opacity));
+  background-color: rgba(255, 255, 255, 0.75);
   z-index: 9999;
   display: flex;
   flex-direction: column;

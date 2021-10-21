@@ -1,6 +1,6 @@
 import { useToast } from 'vue-toastification'
 import { Dataset } from '~/models'
-import { getDatasets } from '~/services/private_requests'
+import { getDatasets } from '~/services/private-requests'
 
 export function useDatasets(fullDialect: string) {
   const toast = useToast()

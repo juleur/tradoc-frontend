@@ -4,7 +4,12 @@ import { useAuth } from '~/composables'
 import { refreshToken } from '~/services'
 import { isAccessTokenRefreshing } from '~/stores'
 
-// const backendUrlAPI = 'https://backend.trad-oc.xyz'
+const { AuthSignedIn, AuthSignedOut } = useAuth()
+
+const toast = useToast()
+const router = useRouter()
+
+// const backendUrlAPI = 'https://api.occitanofon.org'
 const backendUrlAPI = 'http://127.0.0.1:9321'
 
 const publicAPI = axios.create({
@@ -56,8 +61,6 @@ privateAPI.interceptors.response.use(
             refreshToken().then((result) => {
               result
                 .map((accessToken) => {
-                  const { AuthSignedIn } = useAuth()
-
                   useLocalStorage('accessToken', accessToken)
                   AuthSignedIn()
 
@@ -69,18 +72,16 @@ privateAPI.interceptors.response.use(
                     .catch(err => reject(err))
                 })
                 .mapErr((err: any) => {
-                  return err
+                  AuthSignedOut()
+                  toast.error(err.msg)
                 })
             })
           }
         })
       }
       else {
-        const router = useRouter()
-        const toast = useToast()
-
-        toast.warning('Vous avez été déconnecté suite à une erreur dans votre session d\'authentification.')
-        router.push('/connexion')
+        AuthSignedOut()
+        return err
       }
     }
 
